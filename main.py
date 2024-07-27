@@ -3,7 +3,6 @@ import praw
 import csv
 import os
 import re
-from pathlib import Path
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -16,7 +15,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QCheckBox,
-    QMessageBox
+    QMessageBox,
+    QListWidget
     )
 from PySide6.QtCore import QThread, QObject, Signal, Slot
 
@@ -81,45 +81,52 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Top Level Reddit Comments")
-        
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
 
+        layout = QVBoxLayout()
+        link_layout = QHBoxLayout()
+        input_layout = QHBoxLayout()
+        button_layout = QHBoxLayout()
+        
         # Widgets for user input
         self.url_input = QLineEdit()
+        link_layout.addWidget(QLabel("Reddit Post URL:"))
+        link_layout.addWidget(self.url_input)
+        
         self.limit_input = QSpinBox()
         self.limit_input.setRange(1, 1000)
+        input_layout.addWidget(QLabel("Comment Limit:"))
+        input_layout.addWidget(self.limit_input)
+        
+        self.url_list = QListWidget()
+        self.add_url_button = QPushButton("Add URL")
+        self.add_url_button.clicked.connect(self.add_url)
+        
         self.save_button = QPushButton("Save Comments")
+        self.save_button.clicked.connect(self.save_comments)
+        button_layout.addWidget(self.save_button)
+        
         self.browse_button = QPushButton("Choose Save Location")
+        self.browse_button.clicked.connect(self.choose_save_location)
+        button_layout.addWidget(self.browse_button)
 
         # Widgets for output and feedback
         self.status_label = QLabel("Ready")
         
         # Checkbox for saving all top-level comments
         self.save_all_checkbox = QCheckBox("Save all top-level comments")
+        input_layout.addWidget(self.save_all_checkbox)
 
         # Layout
-        layout = QVBoxLayout()
-        link_layout = QHBoxLayout()
-        input_layout = QHBoxLayout()
-        link_layout.addWidget(QLabel("Reddit Post URL:"))
-        link_layout.addWidget(self.url_input)
-        input_layout.addWidget(QLabel("Comment Limit:"))
-        input_layout.addWidget(self.limit_input)
-        input_layout.addWidget(self.save_all_checkbox)  # Add the checkbox to your layout
         layout.addLayout(link_layout)
         layout.addLayout(input_layout)
-        button_layout = QHBoxLayout()
-        button_layout.addWidget(self.save_button)
-        button_layout.addWidget(self.browse_button)
-        
+        layout.addWidget(self.url_list)
+        layout.addWidget(self.add_url_button)
         layout.addLayout(button_layout)
         layout.addWidget(self.status_label)
+        
         self.central_widget.setLayout(layout)
-
-        # Connect signals to slots
-        self.save_button.clicked.connect(self.save_comments)
-        self.browse_button.clicked.connect(self.choose_save_location)
 
         # Initialize save directory to the current script directory
         self.default_save_directory = os.path.dirname(os.path.realpath(__file__))
@@ -128,7 +135,7 @@ class MainWindow(QMainWindow):
             self.save_directory = self.default_save_directory
 
         self.status_label.setText(f"Save location: {self.save_directory}")
-        
+                
     def confirm_save_all(self, total_comments):
         reply = QMessageBox.question(self, 'Confirm Save All', 
                                      f'The post has {total_comments} top-level comments. Do you wish to proceed?',
