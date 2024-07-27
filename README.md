@@ -1,6 +1,6 @@
 # Save Top Level Reddit Comments
 
-This Reddit Top Level Comments Save utility is a Python application that allows users to download and save comments from Reddit posts into CSV files. Built using Python with PySide6 and PRAW (Python Reddit API Wrapper), this tool is designed for ease of use, providing a simple graphical interface to interact with Reddit's API.
+This Reddit Top Level Comments Save utility is a Python application that allows users to download and save comments from Reddit posts into CSV files. Built using Python with PySide6 and PRAW (Python Reddit API Wrapper), this tool is designed for ease of use, providing a simple graphical interface to interact with Reddit's API. The reason I created this is I'm someone who has a lot of posts saved, and often times finds that when the post is asking a question, all I want to know are the top parent responses.
 
 ![reddit-top](assets/reddit_top_level_comments.png)
 
